@@ -1,4 +1,4 @@
-/* app.js - lógica principal */
+/* app.js - lógica principal (actualizado: limpia grilla opcional, finalize no borra) */
 const gridTable = document.getElementById('gridTable');
 const rowsInput = document.getElementById('rows');
 const colsInput = document.getElementById('cols');
@@ -10,6 +10,7 @@ const btnCreate = document.getElementById('createGrid');
 const btnFinalize = document.getElementById('finalizeSnapshot');
 const btnDelete = document.getElementById('deleteBuilding');
 const btnExport = document.getElementById('exportCSV');
+const btnClearGrid = document.getElementById('clearGridBtn');
 
 const STATES = ['', 'X', '-', 'NO', 'XG'];
 const COLORS_CLASS = {
@@ -34,32 +35,35 @@ const diffDash = document.getElementById('diffDash');
 const diffNO = document.getElementById('diffNO');
 const diffXG = document.getElementById('diffXG');
 
-let currentName = '';     // nombre del edificio actualmente cargado
-let prevSnapshot = null;  // { rows, cols, values: [] }
-let curSnapshot = null;   // { rows, cols, values: [] }
+let currentName = '';
+let prevSnapshot = null;
+let curSnapshot = null;
 
-/* ---------- utilidades de storage ---------- */
 function keyPrev(name){ return `edificio_${name}_prev`; }
 function keyCur(name){ return `edificio_${name}_cur`; }
 
-/* cargar lista de edificios */
 function loadSavedList(){
   savedSelect.innerHTML = '<option value="">-- elegir --</option>';
+  // list based on prev OR cur (we want any building that has data)
+  const seen = new Set();
   Object.keys(localStorage).forEach(k=>{
-    if(k.startsWith('edificio_') && k.endsWith('_prev')){
-      const name = k.replace('edificio_','').replace('_prev','');
-      const opt = document.createElement('option');
-      opt.value = name;
-      opt.textContent = name;
-      savedSelect.appendChild(opt);
+    if(k.startsWith('edificio_')){
+      let name = k.replace('edificio_','');
+      name = name.replace('_prev','').replace('_cur','');
+      if(!seen.has(name)){
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        savedSelect.appendChild(opt);
+        seen.add(name);
+      }
     }
   });
 }
 
-/* crear encabezados de columnas (A,B,C... o 1,2,3...) */
+/* convertir index de columna en etiqueta (A,B... o 1,2...) */
 function makeColLabel(i){
   if(labelMode.value === 'letters'){
-    // convertir i (0-based) a letra: 0->A, 25->Z, 26->AA ...
     let n = i;
     let s = '';
     while(true){
@@ -73,16 +77,15 @@ function makeColLabel(i){
   }
 }
 
-/* genera la grilla en la tabla */
+/* genera la tabla con encabezados y selects; orden: piso más alto arriba (rows..1) */
 function generateGridFromSnapshot(rows, cols, values){
   gridTable.innerHTML = '';
   if(rows <= 0 || cols <= 0) return;
 
-  // header
   const thead = document.createElement('thead');
   const topRow = document.createElement('tr');
-  topRow.appendChild(document.createElement('th')); // esquina superior izquierda
-  for(let c=0;c<cols;c++){
+  topRow.appendChild(document.createElement('th'));
+  for(let c=0; c<cols; c++){
     const th = document.createElement('th');
     th.textContent = makeColLabel(c);
     topRow.appendChild(th);
@@ -90,21 +93,19 @@ function generateGridFromSnapshot(rows, cols, values){
   thead.appendChild(topRow);
   gridTable.appendChild(thead);
 
-  // body: IMPORTANT: pintamos filas desde el piso más alto hasta 1
   const tbody = document.createElement('tbody');
   for(let r = rows; r >= 1; r--){
     const tr = document.createElement('tr');
-    // left header con número de piso
     const thLeft = document.createElement('th');
     thLeft.className = 'leftHeader';
     thLeft.textContent = r;
     tr.appendChild(thLeft);
 
-    for(let c=0;c<cols;c++){
+    for(let c=0; c<cols; c++){
       const td = document.createElement('td');
-
       const select = document.createElement('select');
       select.className = 'cellSelect';
+
       STATES.forEach(s=>{
         const o = document.createElement('option');
         o.value = s;
@@ -112,22 +113,18 @@ function generateGridFromSnapshot(rows, cols, values){
         select.appendChild(o);
       });
 
-      // index en values: rows * cols with order: from top to bottom? We store values row-major (from highest to lowest)
-      // We'll define storage ordering: first element corresponds to highest floor (rows) / first column (0).
       const indexForStore = (rows - r) * cols + c;
       if(values && values[indexForStore] !== undefined){
         select.value = values[indexForStore];
         applyBgClass(select, td);
       }
 
-      // cada vez que cambie, actualizamos snapshot actual y guardamos automáticamente
       select.addEventListener('change', ()=>{
         applyBgClass(select, td);
-        // write into curSnapshot values
         if(curSnapshot && Array.isArray(curSnapshot.values)){
           curSnapshot.values[indexForStore] = select.value;
           saveCurSnapshot();
-          refreshStats(); // update display
+          refreshStats();
         }
       });
 
@@ -141,31 +138,37 @@ function generateGridFromSnapshot(rows, cols, values){
   refreshStats();
 }
 
-/* aplica clase de fondo según valor del select */
 function applyBgClass(select, td){
   td.classList.remove('bg-X','bg-dash','bg-NO','bg-XG');
   const v = select.value;
   if(COLORS_CLASS[v]) td.classList.add(COLORS_CLASS[v]);
 }
 
-/* ---------- snapshots ---------- */
+/* Guardar actual en localStorage */
 function saveCurSnapshot(){
   if(!currentName || !curSnapshot) return;
   localStorage.setItem(keyCur(currentName), JSON.stringify(curSnapshot));
 }
 
-/* promote current snapshot to previous (finalizar día) */
+/* Finalizar: copia cur -> prev (no borra cur ni la grilla) */
 function finalizeSnapshot(){
   if(!currentName || !curSnapshot) return;
   localStorage.setItem(keyPrev(currentName), JSON.stringify(curSnapshot));
-  // set prevSnapshot to curSnapshot copy
   prevSnapshot = JSON.parse(JSON.stringify(curSnapshot));
   loadSavedList();
   refreshStats();
   alert('Versión actual guardada como "Vez anterior".');
 }
 
-/* delete building completely (both prev and cur) */
+/* Limpiar la grilla actual: vacía todos los valores (mantiene rows/cols) */
+function clearCurrentGrid(){
+  if(!curSnapshot) return;
+  curSnapshot.values = new Array(curSnapshot.rows * curSnapshot.cols).fill('');
+  saveCurSnapshot();
+  generateGridFromSnapshot(curSnapshot.rows, curSnapshot.cols, curSnapshot.values);
+}
+
+/* Borrar edificio por completo (prev + cur) */
 function deleteBuildingData(){
   if(!currentName) return;
   if(confirm(`Borrar todos los datos del edificio "${currentName}"?`)){
@@ -180,30 +183,32 @@ function deleteBuildingData(){
   }
 }
 
-/* cargar edificio seleccionado */
+/* Cargar edificio (carga la versión ACTUAL si existe, si no usa prev) */
 function loadBuilding(name){
   if(!name) return;
   currentName = name;
   nameInput.value = name;
 
-  const prev = JSON.parse(localStorage.getItem(keyPrev(name)) || 'null');
   const cur = JSON.parse(localStorage.getItem(keyCur(name)) || 'null');
+  const prev = JSON.parse(localStorage.getItem(keyPrev(name)) || 'null');
 
-  prevSnapshot = prev;
+  // preferir cur (última fumigación), si no existe tomar prev
   if(cur){
     curSnapshot = cur;
+    prevSnapshot = prev;
   } else if(prev){
-    // si no hay cur pero hay prev, clonamos prev como punto de partida
+    prevSnapshot = prev;
+    // clonar prev como punto de partida para cur
     curSnapshot = JSON.parse(JSON.stringify(prev));
+    saveCurSnapshot();
   } else {
     curSnapshot = null;
+    prevSnapshot = null;
   }
 
-  // rellenar inputs si hay datos
   if(curSnapshot){
     rowsInput.value = curSnapshot.rows;
     colsInput.value = curSnapshot.cols;
-    // maintain label mode if stored? optional - for now keep current selector
     generateGridFromSnapshot(curSnapshot.rows, curSnapshot.cols, curSnapshot.values);
   } else {
     gridTable.innerHTML = '';
@@ -212,7 +217,7 @@ function loadBuilding(name){
   refreshStats();
 }
 
-/* crear un nuevo edificio (no crea snapshot anterior) */
+/* Crear nuevo edificio/cur snapshot vacío (no toca prev) */
 function createNewBuilding(){
   const name = nameInput.value.trim();
   const rows = parseInt(rowsInput.value);
@@ -221,15 +226,10 @@ function createNewBuilding(){
   if(!rows || !cols) return alert('Ingresá cantidad de pisos y deptos por piso.');
 
   currentName = name;
-
-  // crear curSnapshot vacío (valores vacíos)
   const values = new Array(rows * cols).fill('');
   curSnapshot = { rows, cols, values };
-  // si no existe prev, prevSnapshot = null (se podrá finalizar)
-  const prev = JSON.parse(localStorage.getItem(keyPrev(name)) || 'null');
-  prevSnapshot = prev;
+  prevSnapshot = JSON.parse(localStorage.getItem(keyPrev(name)) || 'null');
 
-  // guardamos cur automáticamente
   saveCurSnapshot();
   loadSavedList();
   generateGridFromSnapshot(rows, cols, values);
@@ -237,7 +237,6 @@ function createNewBuilding(){
 
 /* refrescar estadísticas y comparación */
 function refreshStats(){
-  // contar actuales
   const countsCur = { 'X':0, '-':0, 'NO':0, 'XG':0 };
   const countsPrev = { 'X':0, '-':0, 'NO':0, 'XG':0 };
 
@@ -246,7 +245,6 @@ function refreshStats(){
       if(v in countsCur) countsCur[v]++;
     });
   } else {
-    // try to read from DOM selects if snapshot missing
     document.querySelectorAll('#gridTable select').forEach(s=>{
       const v = s.value;
       if(v in countsCur) countsCur[v]++;
@@ -259,7 +257,6 @@ function refreshStats(){
     });
   }
 
-  // Update DOM
   prevX.textContent = countsPrev['X'] || 0;
   prevDash.textContent = countsPrev['-'] || 0;
   prevNO.textContent = countsPrev['NO'] || 0;
@@ -270,7 +267,6 @@ function refreshStats(){
   curNO.textContent = countsCur['NO'] || 0;
   curXG.textContent = countsCur['XG'] || 0;
 
-  // diffs
   const dx = countsCur['X'] - (countsPrev['X']||0);
   const dd = countsCur['-'] - (countsPrev['-']||0);
   const dn = countsCur['NO'] - (countsPrev['NO']||0);
@@ -290,7 +286,7 @@ function setDiff(elem, value){
   else elem.classList.add('equal');
 }
 
-/* export CSV (fila por fila, desde piso más alto a 1) */
+/* export CSV */
 function exportCSV(){
   if(!curSnapshot) return alert('No hay grilla para exportar.');
   const rows = curSnapshot.rows;
@@ -312,42 +308,39 @@ function exportCSV(){
   URL.revokeObjectURL(url);
 }
 
-/* ---------- eventos UI ---------- */
-btnCreate.addEventListener('click', ()=>{
-  // si ya existe edificio y no se cargó, crear nuevo
-  createNewBuilding();
-});
-
+/* eventos UI */
+btnCreate.addEventListener('click', createNewBuilding);
 btnFinalize.addEventListener('click', finalizeSnapshot);
 btnDelete.addEventListener('click', ()=>{
   if(!currentName) return alert('Elegí o creá un edificio primero.');
   deleteBuildingData();
 });
-
 btnExport.addEventListener('click', exportCSV);
+btnClearGrid.addEventListener('click', ()=>{
+  if(!curSnapshot) return alert('No hay grilla para limpiar.');
+  if(confirm('Limpiar la grilla actual (se quitarán todas las marcas)?')){
+    clearCurrentGrid();
+  }
+});
 
 savedSelect.addEventListener('change', ()=>{
   const val = savedSelect.value;
   if(val) loadBuilding(val);
 });
 
-/* cuando cambia labelMode, regenerar si hay curSnapshot */
 labelMode.addEventListener('change', ()=>{
   if(curSnapshot) generateGridFromSnapshot(curSnapshot.rows, curSnapshot.cols, curSnapshot.values);
 });
 
-/* al cargar la página */
+/* init */
 (function init(){
   loadSavedList();
-  // si el usuario escribió un nombre y quiere cargarlo manualmente:
   nameInput.addEventListener('change', ()=>{
     const name = nameInput.value.trim();
     if(name){
-      // si existe prev, cargarlo; si solo cur existe, cargar cur
-      const hasPrev = !!localStorage.getItem(keyPrev(name));
       const hasCur = !!localStorage.getItem(keyCur(name));
+      const hasPrev = !!localStorage.getItem(keyPrev(name));
       if(hasCur || hasPrev){
-        // cargar automáticamente
         loadBuilding(name);
       }
     }
