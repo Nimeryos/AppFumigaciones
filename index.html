@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mapa de Edificios</title>
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+
+  <h2>Gestión de Edificios</h2>
+
+  <div class="controls">
+    <input id="buildingName" placeholder="Nombre del edificio" />
+    <input id="rows" type="number" placeholder="Pisos (X)" min="1" />
+    <input id="cols" type="number" placeholder="Deptos (Y)" min="1" />
+    <button id="newBuilding">Nuevo edificio</button>
+    <button id="saveBuilding">Guardar</button>
+    <button id="clearGrid">Borrar grilla</button>
+    <button id="exportCSV">Exportar CSV</button>
+    <select id="savedBuildings"></select>
+  </div>
+
+  <div id="grid"></div>
+
+  <div class="stats">
+    <h4>Estadísticas</h4>
+    <p id="countX">X: 0</p>
+    <p id="countDash">-: 0</p>
+    <p id="countNO">NO: 0</p>
+    <p id="countXG">XG: 0</p>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+
+</html>
