@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fumigaciones - Grilla</title>
+<style>
+  body { font-family: sans-serif; padding: 20px; }
+  input { width: 80px; margin-right: 10px; }
+  button { padding: 8px 14px; margin-top: 10px; }
+  .grid-container { margin-top: 20px; overflow-x: auto; }
+  table { border-collapse: collapse; }
+  th, td {
+    width: 40px; height: 40px;
+    border: 1px solid #000;
+    text-align: center;
+  }
+  td { cursor: pointer; }
+  select {
+    position: absolute;
+    display: none;
+    z-index: 10;
+  }
+</style>
+</head>
+<body>
+<h2>Generar grilla</h2>
+<label>Pisos (X):</label>
+<input type="number" id="x">
+<label>Deptos por piso (Y):</label>
+<input type="number" id="y">
+<button onclick="generateGrid()">Crear</button>
+
+<div class="grid-container">
+  <table id="grid"></table>
+</div>
+
+<select id="selector" onchange="applySelection()">
+  <option value=""></option>
+  <option value="X">X</option>
+  <option value="-">-</option>
+  <option value="NO">NO</option>
+  <option value="XG">XG</option>
+</select>
+
+<script>
+let activeCell = null;
+
+function generateGrid() {
+  const x = parseInt(document.getElementById("x").value);
+  const y = parseInt(document.getElementById("y").value);
+
+  if (!x || !y) return alert("Ingresá valores válidos.");
+
+  const table = document.getElementById("grid");
+  table.innerHTML = "";
+
+  const saved = JSON.parse(localStorage.getItem("fumigrid") || "{}");
+
+  let header = document.createElement("tr");
+  header.innerHTML = "<th></th>";
+  for (let col = 0; col < y; col++) header.innerHTML += `<th>D${col+1}</th>`;
+  table.appendChild(header);
+
+  for (let row = 0; row < x; row++) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<th>P${row+1}</th>`;
+
+    for (let col = 0; col < y; col++) {
+      const key = `${row}-${col}`;
+      const td = document.createElement("td");
+      td.textContent = saved[key] || "";
+
+      td.onclick = (e) => showSelector(e, td);
+      tr.appendChild(td);
+    }
+    table.appendChild(tr);
+  }
+}
+
+function showSelector(event, cell) {
+  const selector = document.getElementById("selector");
+  activeCell = cell;
+
+  selector.style.left = event.pageX + "px";
+  selector.style.top = event.pageY + "px";
+  selector.style.display = "block";
+  selector.value = cell.textContent;
+}
+
+function applySelection() {
+  if (activeCell) {
+    activeCell.textContent = document.getElementById("selector").value;
+    saveGrid();
+  }
+  document.getElementById("selector").style.display = "none";
+}
+
+function saveGrid() {
+  const rows = document.querySelectorAll("#grid tr");
+  const data = {};
+
+  rows.forEach((tr, rowIndex) => {
+    if (rowIndex === 0) return;
+    const cells = tr.querySelectorAll("td");
+    cells.forEach((cell, colIndex) => {
+      data[`${rowIndex-1}-${colIndex}`] = cell.textContent;
+    });
+  });
+
+  localStorage.setItem("fumigrid", JSON.stringify(data));
+}
+</script>
+</body>
+</html>
