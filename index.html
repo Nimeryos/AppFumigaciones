@@ -33,6 +33,7 @@
 
       <button id="createGrid">Crear grilla</button>
       <button id="finalizeSnapshot" title="Marcar la versión actual como la 'Vez anterior'">Finalizar (guardar como anterior)</button>
+      <button id="clearGridBtn" title="Limpiar contenidos de la grilla (mantiene la configuración)">Limpiar grilla</button>
       <button id="deleteBuilding" title="Borrar los datos guardados de este edificio">Eliminar edificio</button>
     </div>
 
@@ -44,7 +45,6 @@
 
   <main>
     <div id="tableWrapper">
-      <!-- La tabla se genera dinámicamente -->
       <table id="gridTable"></table>
     </div>
 
@@ -79,9 +79,6 @@
         <div id="prevXG">0</div>
         <div id="curXG">0</div>
         <div id="diffXG" class="diff">0</div>
-      </div>
-      <div class="note">
-        <small>Verde = aumento • Negro = igual • Rojo = disminución</small>
       </div>
     </aside>
   </main>
