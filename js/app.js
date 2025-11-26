@@ -346,3 +346,80 @@ labelMode.addEventListener('change', ()=>{
     }
   });
 })();
+
+
+let buildings = JSON.parse(localStorage.getItem("buildings") || "{}");
+let current = null;
+
+
+function save() {
+localStorage.setItem("buildings", JSON.stringify(buildings));
+}
+
+
+// =============================
+// DARK MODE
+// =============================
+const darkSwitch = document.getElementById("darkModeSwitch");
+darkSwitch.addEventListener("change", () => {
+document.body.classList.toggle("dark", darkSwitch.checked);
+localStorage.setItem("dark", darkSwitch.checked);
+});
+
+
+document.body.classList.toggle("dark", localStorage.getItem("dark") === "true");
+darkSwitch.checked = localStorage.getItem("dark") === "true";
+
+
+// =============================
+// Navegación
+// =============================
+const buttons = document.querySelectorAll(".menu-btn");
+const pages = document.querySelectorAll(".page");
+
+
+buttons.forEach(b => b.onclick = () => {
+buttons.forEach(x => x.classList.remove("active"));
+b.classList.add("active");
+pages.forEach(p => p.classList.remove("visible"));
+document.getElementById(b.dataset.target).classList.add("visible");
+});
+
+
+// =============================
+// Crear nueva grilla desde Inicio
+// =============================
+document.getElementById("startGrid").onclick = () => {
+const name = document.getElementById("initName").value;
+const rows = parseInt(document.getElementById("initRows").value);
+const cols = parseInt(document.getElementById("initCols").value);
+const mode = document.getElementById("initLabelMode").value;
+
+
+if (!name || !rows || !cols) return alert("Faltan datos");
+
+
+buildings[name] = {
+rows, cols, mode,
+current: Array.from({ length: rows }, () => Array(cols).fill("")),
+previous: Array.from({ length: rows }, () => Array(cols).fill("")),
+history: []
+};
+
+
+current = name;
+save();
+refreshBuildingList();
+loadGrid(name);
+
+
+// Ir directo a Fumigación
+document.querySelector("button[data-target='fumigacion']").click();
+};
+
+
+// =============================
+// Listar edificios
+// =============================
+function refreshBuildingList() {
+const sel = document.getElementById("savedBuildings");
