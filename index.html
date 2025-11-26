@@ -1,92 +1,76 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>App Fumigaciones - Grilla</title>
-  <link rel="stylesheet" href="css/style.css" />
-</head>
-<body>
-  <header>
-    <h1>Gestión de Edificios - Fumigaciones</h1>
-  </header>
+<input id="darkModeSwitch" type="checkbox" />
+<span class="slider round"></span>
+</label>
+<span>Modo oscuro</span>
+</div>
+</aside>
 
-  <section class="controls">
-    <div class="row">
-      <label for="buildingName">Nombre del edificio</label>
-      <input id="buildingName" placeholder="Ej: Torre 360" />
-    </div>
 
-    <div class="row">
-      <label for="rows">Cantidad de pisos</label>
-      <input id="rows" type="number" min="1" placeholder="Ej: 12" />
-      <label for="cols">Cantidad de deptos por piso</label>
-      <input id="cols" type="number" min="1" placeholder="Ej: 5" />
-    </div>
+<main class="content">
 
-    <div class="row">
-      <label>Formato de departamentos</label>
-      <select id="labelMode">
-        <option value="letters">Letras (A, B, C...)</option>
-        <option value="numbers">Números (1, 2, 3...)</option>
-      </select>
 
-      <button id="createGrid">Crear grilla</button>
-      <button id="finalizeSnapshot" title="Marcar la versión actual como la 'Vez anterior'">Finalizar (guardar como anterior)</button>
-      <button id="clearGridBtn" title="Limpiar contenidos de la grilla (mantiene la configuración)">Limpiar grilla</button>
-      <button id="deleteBuilding" title="Borrar los datos guardados de este edificio">Eliminar edificio</button>
-    </div>
+<!-- INICIO -->
+<section id="inicio" class="page visible">
+<h2>Crear nueva grilla</h2>
+<div class="controls">
+<div class="row"><label>Nombre del edificio:</label><input id="initName" /></div>
+<div class="row"><label>Pisos:</label><input id="initRows" type="number" min="1" /></div>
+<div class="row"><label>Deptos por piso:</label><input id="initCols" type="number" min="1" /></div>
+<div class="row"><label>Orden:</label>
+<select id="initLabelMode">
+<option value="numbers">Números (1,2,3)</option>
+<option value="letters">Letras (A,B,C)</option>
+</select>
+</div>
+<button id="startGrid">Generar grilla</button>
+</div>
+</section>
 
-    <div class="row">
-      <label for="savedBuildings">Edificios guardados</label>
-      <select id="savedBuildings"></select>
-    </div>
-  </section>
 
-  <main>
-    <div id="tableWrapper">
-      <table id="gridTable"></table>
-    </div>
+<!-- EDIFICIOS -->
+<section id="edificios" class="page">
+<h2>Edificios guardados</h2>
+<div class="controls"><label>Seleccionar:</label><select id="savedBuildings"></select></div>
+<div id="tableWrapper"><table id="gridTable"></table></div>
+</section>
 
-    <aside class="stats">
-      <h3>Estadísticas</h3>
-      <div class="stat-row">
-        <div>Estado</div>
-        <div>Vez anterior</div>
-        <div>Actual</div>
-        <div>Diferencia</div>
-      </div>
-      <div class="stat-row">
-        <div class="state-label">X</div>
-        <div id="prevX">0</div>
-        <div id="curX">0</div>
-        <div id="diffX" class="diff">0</div>
-      </div>
-      <div class="stat-row">
-        <div class="state-label">-</div>
-        <div id="prevDash">0</div>
-        <div id="curDash">0</div>
-        <div id="diffDash" class="diff">0</div>
-      </div>
-      <div class="stat-row">
-        <div class="state-label">NO</div>
-        <div id="prevNO">0</div>
-        <div id="curNO">0</div>
-        <div id="diffNO" class="diff">0</div>
-      </div>
-      <div class="stat-row">
-        <div class="state-label">XG</div>
-        <div id="prevXG">0</div>
-        <div id="curXG">0</div>
-        <div id="diffXG" class="diff">0</div>
-      </div>
-    </aside>
-  </main>
 
-  <footer class="bottom-actions">
-    <button id="exportCSV">Exportar CSV</button>
-  </footer>
+<!-- FUMIGACIÓN -->
+<section id="fumigacion" class="page">
+<h2>Grilla del edificio</h2>
+<div class="top-actions">
+<button id="finalizeSnapshot">Finalizar (guardar como anterior)</button>
+<button id="clearGridBtn">Limpiar Grilla</button>
+<button id="deleteBuilding">Eliminar edificio</button>
+<button id="exportCSV">Exportar CSV</button>
+</div>
 
-  <script src="js/app.js"></script>
+
+<div class="grid-area">
+<div id="tableWrapper"><table id="gridTable"></table></div>
+
+
+<aside class="stats">
+<h3>Estadísticas</h3>
+<div class="stat-row"><span>X</span><span id="prevX">0</span><span id="curX">0</span><span id="diffX" class="diff">0</span></div>
+<div class="stat-row"><span>-</span><span id="prevDash">0</span><span id="curDash">0</span><span id="diffDash" class="diff">0</span></div>
+<div class="stat-row"><span>NO</span><span id="prevNO">0</span><span id="curNO">0</span><span id="diffNO" class="diff">0</span></div>
+<div class="stat-row"><span>XG</span><span id="prevXG">0</span><span id="curXG">0</span><span id="diffXG" class="diff">0</span></div>
+</aside>
+</div>
+</section>
+
+
+<!-- HISTORIAL -->
+<section id="historial" class="page">
+<h2>Historial de modificaciones</h2>
+<div id="historyList"></div>
+</section>
+
+
+</main>
+</div>
+<script src="js/app.js"></script>
 </body>
 </html>
