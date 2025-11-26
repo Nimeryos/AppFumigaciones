@@ -3,47 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>App Fumigaciones</title>
+<title>Fumigaciones - Dark Pro</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
-
 <div class="layout">
-
-    <!-- SIDEBAR -->
     <aside class="sidebar">
         <div>
             <div class="logo">Fumigaciones</div>
-
-            <button class="menu-btn active" data-page="inicio">Inicio</button>
-            <button class="menu-btn" data-page="edificios">Edificios</button>
-            <button class="menu-btn" data-page="historial">Historial</button>
-        </div>
-
-        <!-- DARK MODE SWITCH -->
-        <div class="theme-row">
-            <label class="switch">
-                <input id="darkModeSwitch" type="checkbox">
-                <span class="slider"></span>
-            </label>
-            <span>Modo oscuro</span>
+            <button class="menu-btn active" data-target="inicio">Inicio</button>
+            <button class="menu-btn" data-target="edificios">Edificios</button>
+            <button class="menu-btn" data-target="historial">Historial</button>
         </div>
     </aside>
 
-    <!-- CONTENIDO PRINCIPAL -->
     <main class="content">
-
-
-        <!-- INICIO -->
         <section id="inicio" class="page visible">
             <h2>Crear nueva grilla</h2>
             <div class="controls">
                 <div class="row"><label>Nombre del edificio:</label><input id="initName"></div>
                 <div class="row"><label>Pisos:</label><input id="initRows" type="number" min="1"></div>
                 <div class="row"><label>Deptos por piso:</label><input id="initCols" type="number" min="1"></div>
-                <div class="row">
-                    <label>Orden:</label>
+                <div class="row"><label>Orden:</label>
                     <select id="initLabelMode">
                         <option value="numbers">Números (1,2,3)</option>
                         <option value="letters">Letras (A,B,C)</option>
@@ -53,25 +34,14 @@
             </div>
         </section>
 
-
-        <!-- EDIFICIOS -->
         <section id="edificios" class="page">
             <h2>Edificios guardados</h2>
-            <div class="controls">
-                <label>Seleccionar:</label>
-                <select id="savedBuildings"></select>
-            </div>
-
-            <div id="savedView">
-                <table id="savedGridTable"></table>
-            </div>
+            <div class="controls"><label>Seleccionar:</label><select id="savedBuildings"></select></div>
+            <table id="savedGridTable"></table>
         </section>
 
-
-        <!-- FUMIGACIÓN (GRILLA ACTUAL) -->
         <section id="fumigacion" class="page">
             <h2>Grilla del edificio</h2>
-
             <div class="top-actions">
                 <button id="finalizeSnapshot">Finalizar (guardar como anterior)</button>
                 <button id="clearGridBtn">Limpiar Grilla</button>
@@ -80,10 +50,7 @@
             </div>
 
             <div class="grid-area">
-                <div id="tableWrapper">
-                    <table id="gridTable"></table>
-                </div>
-
+                <div id="tableWrapper"><table id="gridTable"></table></div>
                 <aside class="stats">
                     <h3>Estadísticas</h3>
                     <div class="stat-row"><span>X</span><span id="prevX">0</span><span id="curX">0</span><span id="diffX" class="diff">0</span></div>
@@ -94,8 +61,6 @@
             </div>
         </section>
 
-
-        <!-- HISTORIAL -->
         <section id="historial" class="page">
             <h2>Historial de modificaciones</h2>
             <div id="historyList"></div>
@@ -103,7 +68,6 @@
 
     </main>
 </div>
-
 <script src="js/app.js"></script>
 </body>
 </html>
