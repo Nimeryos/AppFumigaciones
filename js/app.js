@@ -16,9 +16,9 @@ let current = null;
    Config colores (confirmados)
    ------------------------- */
 const COLOR_MAP_UI = {
-  'X':  { bg: '#007BFF', text: '#FFFFFF' }, // Azul fuerte
+  'X':  { bg: '#2ecc71', text: '#FFFFFF' }, // Verde
   '-':  { bg: '#ff6b6b', text: '#000000' }, // Rojo suave (lo usamos como "sin pasar")
-  'NO': { bg: '#2ecc71', text: '#000000' }, // Verde
+  'NO': { bg: '#FF0000', text: '#000000' }, // Rojo fuerte
   'XG': { bg: '#00bcd4', text: '#000000' }  // Celeste
 };
 
@@ -352,11 +352,12 @@ function exportXLSX(){
   // establecer estilos por celda
   // mapa de colores en HEX sin #
   const colorMapXLSX = {
-    'X':  { fg: '007BFF', font: 'FFFFFF' },
-    '-':  { fg: 'FF6B6B', font: '000000' },
-    'NO': { fg: '2ECC71', font: '000000' },
-    'XG': { fg: '00BCD4', font: '000000' }
-  };
+  'X':  { fg: '2ECC71', font: '000000' }, // verde
+  '-':  { fg: 'FF6B6B', font: '000000' },
+  'NO': { fg: 'FF0000', font: 'FFFFFF' }, // rojo fuerte
+  'XG': { fg: '00BCD4', font: '000000' }
+};
+
 
   // Helper border
   const borderThin = {
@@ -425,7 +426,7 @@ function exportXLSX(){
         cell.s.alignment = { horizontal: 'center' };
         cell.s.border = borderThin;
         if(colorMapXLSX[val]){
-          cell.s.fill = { fgColor: { rgb: colorMapXLSX[val].fg } };
+          cell.s.fill = {   patternType: "solid",   fgColor: { rgb: colorMapXLSX[val].fg } };
           cell.s.font = { color: { rgb: colorMapXLSX[val].font }, bold: true };
         } else {
           // empty cell: subtle fill (card)
