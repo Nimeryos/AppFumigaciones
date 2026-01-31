@@ -1,5 +1,6 @@
 /* =============================
-   ========== app.js CORREGIDO ==
+   ========== app.js COMPAT =====
+   ========== (recupera datos viejos)
    ============================= */
 
 let buildings = JSON.parse(localStorage.getItem("buildings") || "{}");
@@ -8,6 +9,28 @@ let current = null;
 function save() {
   localStorage.setItem("buildings", JSON.stringify(buildings));
 }
+
+/* =============================
+   ======= COMPATIBILIDAD ======
+   ============================= */
+// Asegura que edificios viejos no rompan la app
+function normalizeBuilding(b) {
+  if (b.hasPB === undefined) b.hasPB = false;
+  if (!b.history) b.history = [];
+
+  const expectedRows = b.hasPB ? b.rows + 1 : b.rows;
+
+  if (!Array.isArray(b.current) || b.current.length !== expectedRows) {
+    b.current = Array.from({ length: expectedRows }, () => Array(b.cols).fill(""));
+  }
+
+  if (!Array.isArray(b.previous) || b.previous.length !== expectedRows) {
+    b.previous = Array.from({ length: expectedRows }, () => Array(b.cols).fill(""));
+  }
+}
+
+Object.values(buildings).forEach(normalizeBuilding);
+save();
 
 /* =============================
    ========== NAVEGACIÓN =======
@@ -84,6 +107,8 @@ document.getElementById("savedBuildings").onchange = function () {
    ============================= */
 function loadGrid(name) {
   const data = buildings[name];
+  normalizeBuilding(data);
+
   const table = document.getElementById("gridTable");
   table.innerHTML = "";
 
@@ -122,7 +147,7 @@ function loadGrid(name) {
         select.appendChild(op);
       });
 
-      select.value = data.current[r][c];
+      select.value = data.current[r][c] || "";
       select.onchange = () => {
         data.current[r][c] = select.value;
         save();
@@ -149,14 +174,17 @@ function updateStats() {
 
   const count = (arr, v) => arr.filter(x => x === v).length;
 
-  const vals = ["X", "-", "NO", "XG"];
-  vals.forEach(v => {
+  const map = { X: "X", "-": "Dash", NO: "NO", XG: "XG" };
+
+  Object.keys(map).forEach(v => {
     const curVal = count(cur, v);
     const prevVal = count(prev, v);
-    document.getElementById("cur" + v.replace('-', 'Dash')).textContent = curVal;
-    document.getElementById("prev" + v.replace('-', 'Dash')).textContent = prevVal;
+
+    document.getElementById("cur" + map[v]).textContent = curVal;
+    document.getElementById("prev" + map[v]).textContent = prevVal;
+
     const diff = curVal - prevVal;
-    const d = document.getElementById("diff" + v.replace('-', 'Dash'));
+    const d = document.getElementById("diff" + map[v]);
     d.textContent = diff > 0 ? "+" + diff : diff;
     d.className = "diff " + (diff > 0 ? "positive" : diff < 0 ? "negative" : "equal");
   });
@@ -218,7 +246,8 @@ function renderFullHistory() {
   box.innerHTML = "";
 
   Object.entries(buildings).forEach(([name, b]) => {
-    b.history.slice().reverse().forEach((h, i) => {
+    normalizeBuilding(b);
+    b.history.slice().reverse().forEach(h => {
       const div = document.createElement("div");
       div.innerHTML = `<b>${name}</b> — ${h.fecha} <button>Restaurar</button>`;
       div.querySelector("button").onclick = () => {
