@@ -60,12 +60,13 @@ document.getElementById('startGrid').addEventListener('click', () => {
   const rows = parseInt(document.getElementById('initRows').value);
   const cols = parseInt(document.getElementById('initCols').value);
   const mode = document.getElementById('initLabelMode').value || 'numbers';
+  const totalRows = hasPB ? rows + 1 : rows;
 
   if(!name || !rows || !cols){
     return alert('Faltan datos para crear la grilla.');
   }
 
-  const totalRows = hasPB ? rows + 1 : rows;
+  
 
 buildings[name] = {
   rows,
@@ -141,7 +142,7 @@ function loadGrid(name){
   // TBODY (rows: from top = highest piso to bottom = 1)
   const totalRows = data.hasPB ? data.rows + 1 : data.rows;
 
-for (let r = totalRows - 1; r >= 0; r--) {
+   for (let r = totalRows - 1; r >= 0; r--) {
   const rowTR = document.createElement("tr");
   const rowLabel = document.createElement("th");
 
