@@ -56,6 +56,7 @@ menuBtns.forEach(btn => {
    ------------------------- */
 document.getElementById('startGrid').addEventListener('click', () => {
   const name = document.getElementById('initName').value.trim();
+  const hasPB = document.getElementById("initPB").checked;
   const rows = parseInt(document.getElementById('initRows').value);
   const cols = parseInt(document.getElementById('initCols').value);
   const mode = document.getElementById('initLabelMode').value || 'numbers';
@@ -64,14 +65,18 @@ document.getElementById('startGrid').addEventListener('click', () => {
     return alert('Faltan datos para crear la grilla.');
   }
 
-  buildings[name] = {
-    rows,
-    cols,
-    mode,
-    current: Array.from({length: rows}, () => Array(cols).fill('')),
-    previous: Array.from({length: rows}, () => Array(cols).fill('')),
-    history: []  // snapshots
-  };
+  const totalRows = hasPB ? rows + 1 : rows;
+
+buildings[name] = {
+  rows,
+  cols,
+  mode,
+  hasPB,
+  current: Array.from({ length: totalRows }, () => Array(cols).fill("")),
+  previous: Array.from({ length: totalRows }, () => Array(cols).fill("")),
+  history: []
+};
+
 
   current = name;
   saveAll();
@@ -134,13 +139,21 @@ function loadGrid(name){
   table.appendChild(thead);
 
   // TBODY (rows: from top = highest piso to bottom = 1)
-  const tbody = document.createElement('tbody');
-  for(let r = data.rows - 1; r >= 0; r--){
-    const tr = document.createElement('tr');
-    const thLeft = document.createElement('th');
-    thLeft.className = 'leftHeader';
-    thLeft.textContent = (r + 1);
-    tr.appendChild(thLeft);
+  const totalRows = data.hasPB ? data.rows + 1 : data.rows;
+
+for (let r = totalRows - 1; r >= 0; r--) {
+  const rowTR = document.createElement("tr");
+  const rowLabel = document.createElement("th");
+
+  if (data.hasPB && r === 0) {
+    rowLabel.textContent = "PB";
+  }   
+  else {
+    rowLabel.textContent = data.hasPB ? r : r + 1;
+  }
+
+  rowTR.appendChild(rowLabel);
+
 
     for(let c = 0; c < data.cols; c++){
       const td = document.createElement('td');
