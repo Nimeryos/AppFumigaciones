@@ -1,265 +1,234 @@
-/****************************
- * ESTADO GLOBAL
- ****************************/
-let currentBuilding = null;
-let buildings = JSON.parse(localStorage.getItem("buildings")) || {};
-let history = JSON.parse(localStorage.getItem("history")) || [];
+/* =============================
+   ========== app.js CORREGIDO ==
+   ============================= */
 
-/****************************
- * UTILIDADES
- ****************************/
-function saveBuildings() {
+let buildings = JSON.parse(localStorage.getItem("buildings") || "{}");
+let current = null;
+
+function save() {
   localStorage.setItem("buildings", JSON.stringify(buildings));
 }
 
-function saveHistory() {
-  localStorage.setItem("history", JSON.stringify(history));
-}
+/* =============================
+   ========== NAVEGACIÓN =======
+   ============================= */
+const buttons = document.querySelectorAll(".menu-btn");
+const pages = document.querySelectorAll(".page");
 
-function $(id) {
-  return document.getElementById(id);
-}
-
-/****************************
- * MENÚ / NAVEGACIÓN
- ****************************/
-document.querySelectorAll(".menu-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".menu-btn").forEach(b => b.classList.remove("active"));
+buttons.forEach(btn => {
+  btn.onclick = () => {
+    buttons.forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
 
-    document.querySelectorAll(".page").forEach(p => p.classList.remove("visible"));
-    $(btn.dataset.target).classList.add("visible");
-  });
+    pages.forEach(p => p.classList.remove("visible"));
+    document.getElementById(btn.dataset.target).classList.add("visible");
+
+    if (btn.dataset.target === "edificios") refreshBuildingList();
+    if (btn.dataset.target === "historial") renderFullHistory();
+  };
 });
 
-/****************************
- * INICIO – CREAR GRILLA
- ****************************/
-$("startGrid").addEventListener("click", () => {
-  const name = $("initName").value.trim();
-  const rows = parseInt($("initRows").value);
-  const cols = parseInt($("initCols").value);
-  const labelMode = $("initLabelMode").value;
-  const hasPB = $("initPB").checked;
+/* =============================
+   ===== CREAR NUEVA GRILLA ====
+   ============================= */
+document.getElementById("startGrid").onclick = () => {
+  const name = document.getElementById("initName").value.trim();
+  const rows = parseInt(document.getElementById("initRows").value);
+  const cols = parseInt(document.getElementById("initCols").value);
+  const mode = document.getElementById("initLabelMode").value;
+  const hasPB = document.getElementById("initPB").checked;
 
-  if (!name || rows < 1 || cols < 1) {
-    alert("Completá todos los datos");
-    return;
-  }
+  if (!name || !rows || !cols) return alert("Faltan datos");
 
   const totalRows = hasPB ? rows + 1 : rows;
 
-  const grid = [];
-  for (let r = 0; r < totalRows; r++) {
-    grid.push(Array(cols).fill(""));
-  }
-
   buildings[name] = {
-    name,
     rows,
     cols,
+    mode,
     hasPB,
-    labelMode,
-    grid,
-    lastUpdate: new Date().toISOString()
+    current: Array.from({ length: totalRows }, () => Array(cols).fill("")),
+    previous: Array.from({ length: totalRows }, () => Array(cols).fill("")),
+    history: []
   };
 
-  currentBuilding = name;
-  saveBuildings();
-  updateBuildingsSelect();
+  current = name;
+  save();
   loadGrid(name);
+  document.querySelector("button[data-target='fumigacion']").click();
+};
 
-  showPage("fumigacion");
-});
+/* =============================
+   ===== LISTA EDIFICIOS =======
+   ============================= */
+function refreshBuildingList() {
+  const select = document.getElementById("savedBuildings");
+  select.innerHTML = "<option value=''>Seleccionar</option>";
 
-/****************************
- * MOSTRAR SECCIÓN
- ****************************/
-function showPage(id) {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("visible"));
-  $(id).classList.add("visible");
-
-  document.querySelectorAll(".menu-btn").forEach(b => b.classList.remove("active"));
-  document.querySelector(`.menu-btn[data-target="${id}"]`)?.classList.add("active");
+  Object.keys(buildings).forEach(name => {
+    const op = document.createElement("option");
+    op.value = op.textContent = name;
+    select.appendChild(op);
+  });
 }
 
-/****************************
- * CARGAR GRILLA
- ****************************/
+document.getElementById("savedBuildings").onchange = function () {
+  if (!this.value) return;
+  current = this.value;
+  loadGrid(current);
+  document.querySelector("button[data-target='fumigacion']").click();
+};
+
+/* =============================
+   ===== RENDER GRILLA ========
+   ============================= */
 function loadGrid(name) {
   const data = buildings[name];
-  if (!data) return;
-
-  currentBuilding = name;
-  $("buildingTitle").textContent = data.name;
-
-  const table = $("gridTable");
+  const table = document.getElementById("gridTable");
   table.innerHTML = "";
 
-  // Header
-  const header = document.createElement("tr");
-  header.appendChild(document.createElement("th"));
+  document.getElementById("buildingTitle").textContent = name;
+
+  const thead = document.createElement("thead");
+  const hr = document.createElement("tr");
+  hr.appendChild(document.createElement("th"));
 
   for (let c = 0; c < data.cols; c++) {
     const th = document.createElement("th");
-    th.textContent =
-      data.labelMode === "letters"
-        ? String.fromCharCode(65 + c)
-        : c + 1;
-    header.appendChild(th);
+    th.textContent = data.mode === "letters" ? String.fromCharCode(65 + c) : c + 1;
+    hr.appendChild(th);
   }
-  table.appendChild(header);
+  thead.appendChild(hr);
+  table.appendChild(thead);
 
-  const totalRows = data.hasPB ? data.rows + 1 : data.rows;
+  const tbody = document.createElement("tbody");
 
-  for (let r = totalRows - 1; r >= 0; r--) {
+  for (let r = data.current.length - 1; r >= 0; r--) {
     const tr = document.createElement("tr");
+    const th = document.createElement("th");
 
-    const rowLabel = document.createElement("th");
-    if (data.hasPB && r === 0) {
-      rowLabel.textContent = "PB";
-    } else {
-      rowLabel.textContent = data.hasPB ? r : r + 1;
-    }
-    tr.appendChild(rowLabel);
+    if (data.hasPB && r === 0) th.textContent = "PB";
+    else th.textContent = data.hasPB ? r : r + 1;
+
+    tr.appendChild(th);
 
     for (let c = 0; c < data.cols; c++) {
       const td = document.createElement("td");
-      td.textContent = data.grid[r][c] || "";
+      const select = document.createElement("select");
 
-      td.addEventListener("click", () => {
-        td.textContent = nextValue(td.textContent);
-        data.grid[r][c] = td.textContent;
-        data.lastUpdate = new Date().toISOString();
-        saveBuildings();
+      ["", "X", "-", "NO", "XG"].forEach(v => {
+        const op = document.createElement("option");
+        op.value = op.textContent = v;
+        select.appendChild(op);
       });
 
+      select.value = data.current[r][c];
+      select.onchange = () => {
+        data.current[r][c] = select.value;
+        save();
+        updateStats();
+      };
+
+      td.appendChild(select);
       tr.appendChild(td);
     }
-
-    table.appendChild(tr);
+    tbody.appendChild(tr);
   }
+
+  table.appendChild(tbody);
+  updateStats();
 }
 
-/****************************
- * CICLO DE ESTADOS
- ****************************/
-const STATES = ["", "X", "-", "NO", "XG"];
+/* =============================
+   ===== ESTADÍSTICAS =========
+   ============================= */
+function updateStats() {
+  if (!current) return;
+  const cur = buildings[current].current.flat();
+  const prev = buildings[current].previous.flat();
 
-function nextValue(current) {
-  const i = STATES.indexOf(current);
-  return STATES[(i + 1) % STATES.length];
-}
+  const count = (arr, v) => arr.filter(x => x === v).length;
 
-/****************************
- * EDIFICIOS GUARDADOS
- ****************************/
-function updateBuildingsSelect() {
-  const sel = $("savedBuildings");
-  sel.innerHTML = "";
-
-  Object.keys(buildings).forEach(name => {
-    const opt = document.createElement("option");
-    opt.value = name;
-    opt.textContent = name;
-    sel.appendChild(opt);
+  const vals = ["X", "-", "NO", "XG"];
+  vals.forEach(v => {
+    const curVal = count(cur, v);
+    const prevVal = count(prev, v);
+    document.getElementById("cur" + v.replace('-', 'Dash')).textContent = curVal;
+    document.getElementById("prev" + v.replace('-', 'Dash')).textContent = prevVal;
+    const diff = curVal - prevVal;
+    const d = document.getElementById("diff" + v.replace('-', 'Dash'));
+    d.textContent = diff > 0 ? "+" + diff : diff;
+    d.className = "diff " + (diff > 0 ? "positive" : diff < 0 ? "negative" : "equal");
   });
 }
 
-$("savedBuildings").addEventListener("change", e => {
-  loadGrid(e.target.value);
-  showPage("fumigacion");
-});
+/* =============================
+   ===== FINALIZAR ============
+   ============================= */
+document.getElementById("finalizeSnapshot").onclick = () => {
+  if (!current) return;
+  const d = buildings[current];
+  d.history.push({ fecha: new Date().toLocaleString(), snapshot: JSON.parse(JSON.stringify(d.current)) });
+  d.previous = JSON.parse(JSON.stringify(d.current));
+  save();
+  updateStats();
+};
 
-/****************************
- * LIMPIAR GRILLA
- ****************************/
-$("clearGridBtn").addEventListener("click", () => {
-  if (!currentBuilding) return;
+/* =============================
+   ===== LIMPIAR ==============
+   ============================= */
+document.getElementById("clearGridBtn").onclick = () => {
+  if (!current) return;
+  const d = buildings[current];
+  d.current = Array.from({ length: d.current.length }, () => Array(d.cols).fill(""));
+  save();
+  loadGrid(current);
+};
 
-  const b = buildings[currentBuilding];
-  const totalRows = b.hasPB ? b.rows + 1 : b.rows;
+/* =============================
+   ===== ELIMINAR =============
+   ============================= */
+document.getElementById("deleteBuilding").onclick = () => {
+  if (!current || !confirm("Eliminar edificio?")) return;
+  delete buildings[current];
+  current = null;
+  save();
+  document.getElementById("gridTable").innerHTML = "";
+};
 
-  for (let r = 0; r < totalRows; r++) {
-    for (let c = 0; c < b.cols; c++) {
-      b.grid[r][c] = "";
-    }
-  }
+/* =============================
+   ===== EXPORT CSV ===========
+   ============================= */
+document.getElementById("exportCSV").onclick = () => {
+  if (!current) return;
+  const d = buildings[current];
+  let csv = d.current.map(r => r.join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = current + ".csv";
+  a.click();
+};
 
-  saveBuildings();
-  loadGrid(currentBuilding);
-});
+/* =============================
+   ===== HISTORIAL ============
+   ============================= */
+function renderFullHistory() {
+  const box = document.getElementById("historyList");
+  box.innerHTML = "";
 
-/****************************
- * ELIMINAR EDIFICIO
- ****************************/
-$("deleteBuilding").addEventListener("click", () => {
-  if (!currentBuilding) return;
-  if (!confirm("Eliminar edificio?")) return;
-
-  delete buildings[currentBuilding];
-  currentBuilding = null;
-  saveBuildings();
-  updateBuildingsSelect();
-  showPage("inicio");
-});
-
-/****************************
- * HISTORIAL
- ****************************/
-function updateHistory() {
-  const container = $("historyList");
-  container.innerHTML = "";
-
-  history.forEach(h => {
-    const div = document.createElement("div");
-    div.textContent = `${h.date} - ${h.name}`;
-    container.appendChild(div);
+  Object.entries(buildings).forEach(([name, b]) => {
+    b.history.slice().reverse().forEach((h, i) => {
+      const div = document.createElement("div");
+      div.innerHTML = `<b>${name}</b> — ${h.fecha} <button>Restaurar</button>`;
+      div.querySelector("button").onclick = () => {
+        b.current = JSON.parse(JSON.stringify(h.snapshot));
+        save();
+        current = name;
+        loadGrid(name);
+        document.querySelector("button[data-target='fumigacion']").click();
+      };
+      box.appendChild(div);
+    });
   });
 }
-
-/****************************
- * EXPORTAR CSV
- ****************************/
-$("exportCSV").addEventListener("click", () => {
-  if (!currentBuilding) return;
-
-  const b = buildings[currentBuilding];
-  let csv = "";
-
-  const header = ["Piso"];
-  for (let c = 0; c < b.cols; c++) {
-    header.push(b.labelMode === "letters"
-      ? String.fromCharCode(65 + c)
-      : c + 1);
-  }
-  csv += header.join(",") + "\n";
-
-  const totalRows = b.hasPB ? b.rows + 1 : b.rows;
-
-  for (let r = totalRows - 1; r >= 0; r--) {
-    const row = [];
-
-    if (b.hasPB && r === 0) row.push("PB");
-    else row.push(b.hasPB ? r : r + 1);
-
-    for (let c = 0; c < b.cols; c++) {
-      row.push(b.grid[r][c] || "");
-    }
-
-    csv += row.join(",") + "\n";
-  }
-
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = `${currentBuilding}.csv`;
-  link.click();
-});
-
-/****************************
- * INIT
- ****************************/
-updateBuildingsSelect();
-updateHistory();
