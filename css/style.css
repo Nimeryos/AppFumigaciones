@@ -174,3 +174,34 @@ button:hover {
   .sidebar { flex-direction: row; width: 100%; overflow-x: auto; }
   .stats { margin: 20px auto; }
 }
+/* ============================= */
+/* COLORES DE ESTADOS EN GRILLA */
+/* ============================= */
+
+td.cell-X select {
+  background-color: #2ecc71; /* Verde */
+  color: #000;
+}
+
+td.cell-NO select {
+  background-color: #ff2b2b; /* Rojo brillante */
+  color: #fff;
+}
+
+td.cell-- select {
+  background-color: #d35400; /* Naranja suave */
+  color: #fff;
+}
+
+td.cell-XG select {
+  background-color: #5dade2; /* Celeste */
+  color: #000;
+}
+
+/* Para que se vea bien en mobile también */
+td select {
+  width: 100%;
+  border: none;
+  padding: 6px;
+  font-weight: bold;
+}
