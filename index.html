@@ -1,102 +1,98 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fumigaciones - Dark Pro</title>
-<link rel="stylesheet" href="css/style.css">
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>App Fumigaciones</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 
-<body>
+<body class="dark">
 
-<div class="layout">
+<div class="app">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div>
-            <div class="logo">Fumigaciones</div>
+  <aside class="sidebar">
+    <h1>Fumigaciones</h1>
 
-            <!-- 🌟 BOTONES DEL MENÚ (CORREGIDOS) -->
-            <button class="menu-btn active" data-target="inicio">Inicio</button>
-            <button class="menu-btn" data-target="edificios">Edificios</button>
-            <button class="menu-btn" data-target="fumigacion">Fumigación</button>
-            <button class="menu-btn" data-target="historial">Historial</button>
+    <button class="menu-btn active" data-target="inicio">Inicio</button>
+    <button class="menu-btn" data-target="edificios">Edificios</button>
+    <button class="menu-btn" data-target="fumigacion">Grilla</button>
+    <button class="menu-btn" data-target="historial">Historial</button>
+    <!-- Calendario lo agregamos después -->
+  </aside>
+
+  <main class="content">
+
+    <!-- INICIO -->
+    <section id="inicio" class="page visible">
+      <h2>Crear nueva grilla</h2>
+
+      <div class="controls">
+
+        <div class="row">
+          <label>Nombre del edificio</label>
+          <input id="initName" />
         </div>
-    </aside>
 
-    <!-- CONTENIDO -->
-    <main class="content">
+        <div class="row">
+          <label>Pisos</label>
+          <input id="initRows" type="number" min="1" />
+        </div>
 
-        <!-- INICIO -->
-        <section id="inicio" class="page visible">
-            <h2>Crear nueva grilla</h2>
+        <div class="row">
+          <label>Deptos por piso</label>
+          <input id="initCols" type="number" min="1" />
+        </div>
 
-            <div class="controls">
-                <div class="row"><label>Nombre del edificio:</label><input id="initName"></div>
-                <div class="row"><label>Pisos:</label><input id="initRows" type="number" min="1"></div>
-                <div class="row"><label>Deptos por piso:</label><input id="initCols" type="number" min="1"></div>
+        <div class="row">
+          <label>Orden de deptos</label>
+          <select id="initLabelMode">
+            <option value="numbers">Números (1,2,3)</option>
+            <option value="letters">Letras (A,B,C)</option>
+          </select>
+        </div>
 
-                <div class="row">
-                    <label>Orden:</label>
-                    <select id="initLabelMode">
-                        <option value="numbers">Números (1,2,3)</option>
-                        <option value="letters">Letras (A,B,C)</option>
-                    </select>
-                </div>
+        <div class="row checkbox">
+          <label>
+            <input type="checkbox" id="initPB" />
+            Tiene Planta Baja
+          </label>
+        </div>
 
-                <button id="startGrid">Generar grilla</button>
-            </div>
-        </section>
+        <button id="startGrid">Generar grilla</button>
 
-        <!-- EDIFICIOS -->
-        <section id="edificios" class="page">
-            <h2>Edificios guardados</h2>
+      </div>
+    </section>
 
-            <div class="controls">
-                <label>Seleccionar:</label>
-                <select id="savedBuildings"></select>
-            </div>
+    <!-- GRILLA -->
+    <section id="fumigacion" class="page">
+      <h2 id="buildingTitle" class="building-title"></h2>
 
-            <table id="savedGridTable"></table>
-        </section>
+      <div class="top-actions">
+        <button id="finalizeSnapshot">Finalizar</button>
+        <button id="clearGridBtn">Limpiar grilla</button>
+        <button id="deleteBuilding">Eliminar edificio</button>
+        <button id="exportCSV">Exportar CSV</button>
+      </div>
 
-        <!-- FUMIGACIÓN -->
-        <section id="fumigacion" class="page">
-            <h2>Grilla del edificio</h2>
+      <div id="tableWrapper">
+        <table id="gridTable"></table>
+      </div>
+    </section>
 
-            <div class="top-actions">
-                <button id="finalizeSnapshot">Finalizar (guardar como anterior)</button>
-                <button id="clearGridBtn">Limpiar Grilla</button>
-                <button id="deleteBuilding">Eliminar edificio</button>
-                <button id="exportCSV">Exportar CSV</button>
-                <button id="exportXLSX" class="btn">Exportar Excel (.xlsx)</button>
-                </div>
+    <!-- EDIFICIOS -->
+    <section id="edificios" class="page">
+      <h2>Edificios guardados</h2>
+      <select id="savedBuildings"></select>
+    </section>
 
-            <div class="grid-area">
-                <div id="tableWrapper">
-                    <table id="gridTable"></table>
-                </div>
+    <!-- HISTORIAL -->
+    <section id="historial" class="page">
+      <h2>Historial</h2>
+      <div id="historyList"></div>
+    </section>
 
-                <aside class="stats">
-                    <h3>Estadísticas</h3>
-
-                    <div class="stat-row"><span>X</span><span id="prevX">0</span><span id="curX">0</span><span id="diffX" class="diff">0</span></div>
-                    <div class="stat-row"><span>-</span><span id="prevDash">0</span><span id="curDash">0</span><span id="diffDash" class="diff">0</span></div>
-                    <div class="stat-row"><span>NO</span><span id="prevNO">0</span><span id="curNO">0</span><span id="diffNO" class="diff">0</span></div>
-                    <div class="stat-row"><span>XG</span><span id="prevXG">0</span><span id="curXG">0</span><span id="diffXG" class="diff">0</span></div>
-                </aside>
-            </div>
-        </section>
-
-        <!-- HISTORIAL -->
-        <section id="historial" class="page">
-            <h2>Historial de modificaciones</h2>
-            <div id="historyList"></div>
-        </section>
-
-    </main>
-
+  </main>
 </div>
 
 <script src="js/app.js"></script>
