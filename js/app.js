@@ -136,22 +136,11 @@ function loadGrid(name) {
       const td = document.createElement("td");
       const select = document.createElement("select");
 
-      ["", "X", "-", "NO", "XG"].forEach(v => {
+      ["", "X", "DASH", "NO", "XG"].forEach(v => {
         const op = document.createElement("option");
         op.value = op.textContent = v;
         select.appendChild(op);
       });
-
-      select.value = data.current[r][c] || "";
-       applyCellColor(td, select.value);
-      select.onchange = () => {
-      data.current[r][c] = select.value;
-        applyCellColor(td, select.value);
-        save();
-        updateStats();
-      };
-
-
       td.appendChild(select);
       tr.appendChild(td);
     }
@@ -163,21 +152,13 @@ function loadGrid(name) {
 }
 
 function applyCellColor(td, value) {
-  td.classList.remove("cell-X", "cell-NO", "cell--", "cell-XG");
-  if (value) {
-    td.classList.add("cell-" + value);
-  }
+  td.className = ""; // limpia clases previas
+
+  if (value === "X") td.classList.add("cell-x");
+  else if (value === "NO") td.classList.add("cell-no");
+  else if (value === "DASH") td.classList.add("cell-dash");
+  else if (value === "XG") td.classList.add("cell-xg");
 }
-
-function applyCellColor(td, value) {
-  td.classList.remove("cell-X", "cell-NO", "cell--", "cell-XG");
-
-  if (value === "X") td.classList.add("cell-X");
-  if (value === "NO") td.classList.add("cell-NO");
-  if (value === "-") td.classList.add("cell--");
-  if (value === "XG") td.classList.add("cell-XG");
-}
-
 
 /* =============================
    ===== ESTADÍSTICAS =========
