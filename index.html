@@ -9,7 +9,6 @@
 <body class="dark">
 
 <div class="app">
-  <!-- MENU LATERAL -->
   <aside class="sidebar">
     <h1>Fumigaciones</h1>
     <nav>
@@ -20,10 +19,8 @@
     </nav>
   </aside>
 
-  <!-- CONTENIDO -->
   <main class="content">
 
-    <!-- INICIO -->
     <section id="inicio" class="page visible">
       <h2>Crear nueva grilla</h2>
       <div class="controls">
@@ -53,41 +50,34 @@
       </div>
     </section>
 
-    <!-- EDIFICIOS -->
     <section id="edificios" class="page">
       <h2>Edificios guardados</h2>
-      <div class="controls">
-        <label>Seleccionar edificio</label>
-        <select id="savedBuildings"></select>
-      </div>
+      <select id="savedBuildings"></select>
     </section>
 
-    <!-- GRILLA / FUMIGACION -->
     <section id="fumigacion" class="page">
       <h2 id="buildingTitle"></h2>
+
       <div class="top-actions">
-        <button id="finalizeSnapshot">Finalizar (guardar)</button>
-        <button id="clearGridBtn">Limpiar grilla</button>
-        <button id="deleteBuilding">Eliminar edificio</button>
-        <button id="exportCSV">Exportar CSV</button>
+        <button id="finalizeSnapshot">Finalizar</button>
+        <button id="clearGridBtn">Limpiar</button>
+        <button id="deleteBuilding">Eliminar</button>
+        <button id="exportCSV">CSV</button>
       </div>
 
       <div class="grid-area">
-        <div class="table-wrapper">
-          <table id="gridTable"></table>
-        </div>
+        <table id="gridTable"></table>
 
         <aside class="stats">
           <h3>Estadísticas</h3>
-          <div class="stat-row"><span>X</span><span id="prevX">0</span><span id="curX">0</span><span id="diffX" class="diff">0</span></div>
-          <div class="stat-row"><span>-</span><span id="prevDash">0</span><span id="curDash">0</span><span id="diffDash" class="diff">0</span></div>
-          <div class="stat-row"><span>NO</span><span id="prevNO">0</span><span id="curNO">0</span><span id="diffNO" class="diff">0</span></div>
-          <div class="stat-row"><span>XG</span><span id="prevXG">0</span><span id="curXG">0</span><span id="diffXG" class="diff">0</span></div>
+          <div class="stat-row"><span>X</span><span id="prevX">0</span><span id="curX">0</span><span id="diffX">0</span></div>
+          <div class="stat-row"><span>-</span><span id="prevDash">0</span><span id="curDash">0</span><span id="diffDash">0</span></div>
+          <div class="stat-row"><span>NO</span><span id="prevNO">0</span><span id="curNO">0</span><span id="diffNO">0</span></div>
+          <div class="stat-row"><span>XG</span><span id="prevXG">0</span><span id="curXG">0</span><span id="diffXG">0</span></div>
         </aside>
       </div>
     </section>
 
-    <!-- HISTORIAL -->
     <section id="historial" class="page">
       <h2>Historial</h2>
       <div id="historyList"></div>
@@ -99,3 +89,4 @@
 <script src="js/app.js"></script>
 </body>
 </html>
+
