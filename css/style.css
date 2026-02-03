@@ -188,7 +188,7 @@ td.cell-NO select {
   color: #fff;
 }
 
-td.cell-- select {
+td.cell-DASH select {
   background-color: #d35400; /* Naranja suave */
   color: #fff;
 }
