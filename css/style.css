@@ -1,207 +1,42 @@
-/* Dark Professional Theme */
-
-:root {
-  --bg: #0e1117;
-  --text: #dce2f0;
-  --sidebar: #11151c;
-  --sidebar-hover: #1a1f29;
-  --accent: #4da3ff;
-  --card: #1b212c;
-  --border: #2a3240;
-  --table-header: #1f2633;
-}
-
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: "Segoe UI", Arial, sans-serif;
+  background: #0e1117;
+  color: #dce2f0;
+  font-family: Arial, sans-serif;
 }
 
-.layout {
-  display: flex;
-  height: 100vh;
-}
-
-/* SIDEBAR */
 .sidebar {
-  width: 230px;
-  background: var(--sidebar);
+  width: 220px;
+  background: #11151c;
   padding: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  border-right: 1px solid var(--border);
-}
-
-.logo {
-  font-size: 22px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  color: var(--text);
 }
 
 .menu-btn {
   width: 100%;
-  padding: 10px;
   margin-bottom: 10px;
-  background: var(--sidebar);
-  border: 1px solid var(--border);
-  color: var(--text);
-  border-radius: 5px;
-  cursor: pointer;
-  text-align: left;
-  transition: 0.2s;
-}
-
-.menu-btn:hover {
-  background: var(--sidebar-hover);
-}
-
-.menu-btn.active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: white;
-}
-
-/* CONTENT */
-.content {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
 }
 
 .page { display: none; }
 .page.visible { display: block; }
 
-/* INPUTS */
-.controls input,
-.controls select {
-  padding: 6px;
-  border-radius: 5px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  color: var(--text);
-}
-
-button {
-  background: var(--accent);
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-button:hover {
-  opacity: 0.85;
-}
-
-/* GRID */
-#gridTable,
-#savedGridTable {
-  width: 100%;
+#gridTable {
   border-collapse: collapse;
-  margin-top: 15px;
 }
 
-#gridTable th,
-#savedGridTable th {
-  background: var(--table-header);
-  border: 1px solid var(--border);
-  padding: 5px;
-}
-
-#gridTable td,
-#savedGridTable td {
-  border: 1px solid var(--border);
-  background: var(--card);
+#gridTable th, #gridTable td {
+  border: 1px solid #2a3240;
   padding: 5px;
   text-align: center;
 }
 
 #gridTable select {
   width: 100%;
-  padding: 4px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  color: var(--text);
-  border-radius: 4px;
-}
-
-/* STATS */
-.stats {
-  background: var(--card);
-  padding: 15px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  width: 220px;
-  height: fit-content;
-  margin-left: 20px;
-}
-
-.stat-row {
-  display: grid;
-  grid-template-columns: 40px 40px 40px 60px;
-  padding: 4px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.diff.positive { color: #3ddc97; }
-.diff.negative { color: #ff5c5c; }
-.diff.equal { color: #9ca3af; }
-
-/* HISTORIAL */
-.history-entry {
-  background: var(--card);
-  border: 1px solid var(--border);
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 12px;
-}
-
-.restore-btn {
-  background: #3ddc97;
-  color: black;
-  margin-top: 8px;
-  font-weight: bold;
-}
-
-/* RESPONSIVE */
-@media(max-width:900px) {
-  .layout { flex-direction: column; }
-  .sidebar { flex-direction: row; width: 100%; overflow-x: auto; }
-  .stats { margin: 20px auto; }
-}
-/* ============================= */
-/* COLORES DE ESTADOS EN GRILLA */
-/* ============================= */
-
-td.cell-X select {
-  background-color: #2ecc71; /* Verde */
-  color: #000;
-}
-
-td.cell-NO select {
-  background-color: #ff2b2b; /* Rojo brillante */
-  color: #fff;
-}
-
-td.cell-DASH select {
-  background-color: #d35400; /* Naranja suave */
-  color: #fff;
-}
-
-td.cell-XG select {
-  background-color: #5dade2; /* Celeste */
-  color: #000;
-}
-
-/* Para que se vea bien en mobile también */
-td select {
-  width: 100%;
-  border: none;
   padding: 6px;
   font-weight: bold;
 }
+
+/* COLORES */
+td.cell-X select { background:#2ecc71; color:#000; }
+td.cell-NO select { background:#ff2b2b; color:#fff; }
+td.cell-DASH select { background:#d35400; color:#fff; }
+td.cell-XG select { background:#5dade2; color:#000; }
