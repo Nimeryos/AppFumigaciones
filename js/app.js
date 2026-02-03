@@ -1,8 +1,3 @@
-/* =============================
-   ========== app.js COMPAT =====
-   ========== (recupera datos viejos)
-   ============================= */
-
 let buildings = JSON.parse(localStorage.getItem("buildings") || "{}");
 let current = null;
 
@@ -148,11 +143,14 @@ function loadGrid(name) {
       });
 
       select.value = data.current[r][c] || "";
+       applyCellColor(td, select.value);
       select.onchange = () => {
-        data.current[r][c] = select.value;
+      data.current[r][c] = select.value;
+        applyCellColor(td, select.value);
         save();
         updateStats();
       };
+
 
       td.appendChild(select);
       tr.appendChild(td);
@@ -162,6 +160,13 @@ function loadGrid(name) {
 
   table.appendChild(tbody);
   updateStats();
+}
+
+function applyCellColor(td, value) {
+  td.classList.remove("cell-X", "cell-NO", "cell--", "cell-XG");
+  if (value) {
+    td.classList.add("cell-" + value);
+  }
 }
 
 /* =============================
