@@ -169,6 +169,16 @@ function applyCellColor(td, value) {
   }
 }
 
+function applyCellColor(td, value) {
+  td.classList.remove("cell-X", "cell-NO", "cell--", "cell-XG");
+
+  if (value === "X") td.classList.add("cell-X");
+  if (value === "NO") td.classList.add("cell-NO");
+  if (value === "-") td.classList.add("cell--");
+  if (value === "XG") td.classList.add("cell-XG");
+}
+
+
 /* =============================
    ===== ESTADÍSTICAS =========
    ============================= */
