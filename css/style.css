@@ -1,31 +1,81 @@
-body {
-  margin: 0;
-  background: #0e1117;
-  color: #dce2f0;
-  font-family: Arial, sans-serif;
+:root {
+  --bg: #0e1117;
+  --text: #dce2f0;
+  --sidebar: #11151c;
+  --sidebar-hover: #1a1f29;
+  --accent: #4da3ff;
+  --card: #1b212c;
+  --border: #2a3240;
+  --table-header: #1f2633;
 }
 
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.app {
+  display: flex;
+  height: 100vh;
+}
+
+/* SIDEBAR */
 .sidebar {
-  width: 220px;
-  background: #11151c;
+  width: 230px;
+  background: var(--sidebar);
   padding: 20px;
+  border-right: 1px solid var(--border);
+}
+
+.sidebar h1 {
+  margin-top: 0;
 }
 
 .menu-btn {
   width: 100%;
+  padding: 10px;
   margin-bottom: 10px;
+  background: var(--sidebar);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: left;
+  transition: 0.2s;
+}
+
+.menu-btn:hover {
+  background: var(--sidebar-hover);
+}
+
+.menu-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+/* CONTENT */
+.content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
 }
 
 .page { display: none; }
 .page.visible { display: block; }
 
+/* GRID */
 #gridTable {
   border-collapse: collapse;
+  margin-top: 15px;
 }
 
-#gridTable th, #gridTable td {
-  border: 1px solid #2a3240;
-  padding: 5px;
+#gridTable th,
+#gridTable td {
+  border: 1px solid var(--border);
+  padding: 6px;
   text-align: center;
 }
 
@@ -33,6 +83,9 @@ body {
   width: 100%;
   padding: 6px;
   font-weight: bold;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
 }
 
 /* COLORES */
@@ -40,3 +93,13 @@ td.cell-X select { background:#2ecc71; color:#000; }
 td.cell-NO select { background:#ff2b2b; color:#fff; }
 td.cell-DASH select { background:#d35400; color:#fff; }
 td.cell-XG select { background:#5dade2; color:#000; }
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .app { flex-direction: column; }
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+}
