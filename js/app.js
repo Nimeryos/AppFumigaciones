@@ -52,8 +52,15 @@ document.getElementById("startGrid").onclick = () => {
   };
 
   current = name;
-  save();
-  loadGrid(name);
+save();
+loadGrid(name);
+
+/* IR AUTOMÁTICAMENTE A GRILLA */
+document.querySelectorAll(".menu-btn").forEach(b => b.classList.remove("active"));
+document.querySelector('[data-target="fumigacion"]').classList.add("active");
+
+document.querySelectorAll(".page").forEach(p => p.classList.remove("visible"));
+document.getElementById("fumigacion").classList.add("visible");
 };
 
 /* LISTA */
