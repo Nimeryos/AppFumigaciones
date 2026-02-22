@@ -88,11 +88,11 @@ body {
   border: 1px solid var(--border);
 }
 
-/* COLORES */
-td.cell-X select { background:#2ecc71; color:#000; }
-td.cell-NO select { background:#ff2b2b; color:#fff; }
-td.cell-DASH select { background:#d35400; color:#fff; }
-td.cell-XG select { background:#5dade2; color:#000; }
+/* COLORES (forzados correctamente) */
+td.cell-X select { background:#2ecc71 !important; color:#000 !important; }
+td.cell-NO select { background:#ff2b2b !important; color:#fff !important; }
+td.cell-DASH select { background:#d35400 !important; color:#fff !important; }
+td.cell-XG select { background:#5dade2 !important; color:#000 !important; }
 
 /* RESPONSIVE */
 @media(max-width:900px){
@@ -103,3 +103,29 @@ td.cell-XG select { background:#5dade2; color:#000; }
     border-bottom: 1px solid var(--border);
   }
 }
+
+/* PANEL ESTADÍSTICAS */
+.stats {
+  background: var(--card);
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  width: 220px;
+  margin-top: 20px;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: 40px 40px 40px 60px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+
+.stat-row span {
+  text-align: center;
+}
+
+.diff.positive { color: #3ddc97; }
+.diff.negative { color: #ff5c5c; }
+.diff.equal { color: #9ca3af; }
