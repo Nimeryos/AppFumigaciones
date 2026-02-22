@@ -86,12 +86,39 @@ function loadGrid(name) {
   gridTable.innerHTML = "";
   buildingTitle.textContent = name;
 
+  /* ---------- HEADER (A B C D / 1 2 3) ---------- */
+  const thead = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+
+  // Celda vacía esquina superior izquierda
+  headerRow.appendChild(document.createElement("th"));
+
+  for (let c = 0; c < d.cols; c++) {
+    const th = document.createElement("th");
+    th.textContent =
+      d.mode === "letters"
+        ? String.fromCharCode(65 + c)
+        : c + 1;
+    headerRow.appendChild(th);
+  }
+
+  thead.appendChild(headerRow);
+  gridTable.appendChild(thead);
+
+  /* ---------- BODY ---------- */
   const tbody = document.createElement("tbody");
 
   for (let r = d.current.length - 1; r >= 0; r--) {
     const tr = document.createElement("tr");
+
     const th = document.createElement("th");
-    th.textContent = d.hasPB && r === 0 ? "PB" : d.hasPB ? r : r + 1;
+    th.textContent =
+      d.hasPB && r === 0
+        ? "PB"
+        : d.hasPB
+        ? r
+        : r + 1;
+
     tr.appendChild(th);
 
     for (let c = 0; c < d.cols; c++) {
@@ -117,6 +144,7 @@ function loadGrid(name) {
       td.appendChild(sel);
       tr.appendChild(td);
     }
+
     tbody.appendChild(tr);
   }
 
@@ -135,15 +163,28 @@ function applyCellColor(td, v) {
 /* STATS */
 function updateStats() {
   if (!current) return;
-  const c = buildings[current].current.flat();
-  const p = buildings[current].previous.flat();
 
-  const cnt = (a,v)=>a.filter(x=>x===v).length;
+  const d = buildings[current];
+  const c = d.current.flat();
+  const p = d.previous.flat();
+
+  const count = (arr,v)=>arr.filter(x=>x===v).length;
 
   [["X","X"],["-","Dash"],["NO","NO"],["XG","XG"]].forEach(([v,k])=>{
-    cur=document.getElementById("cur"+k).textContent=cnt(c,v);
-    prev=document.getElementById("prev"+k).textContent=cnt(p,v);
-    document.getElementById("diff"+k).textContent=cnt(c,v)-cnt(p,v);
+    const cur = count(c,v);
+    const prev = count(p,v);
+    const diff = cur - prev;
+
+    document.getElementById("cur"+k).textContent = cur;
+    document.getElementById("prev"+k).textContent = prev;
+
+    const diffEl = document.getElementById("diff"+k);
+    diffEl.textContent = diff;
+
+    diffEl.className = "";
+    if(diff > 0) diffEl.classList.add("diff","positive");
+    else if(diff < 0) diffEl.classList.add("diff","negative");
+    else diffEl.classList.add("diff","equal");
   });
 }
 
